@@ -1,0 +1,84 @@
+•	Implemented deployment of a code into three tomcat  servers in different environment with Condition Yes (or) No using CI/CD
+
+
+pipeline{
+    agent any
+    parameters{
+        choice(
+            choices:['YES','NO'],
+            description:'deploy to tomcat?',
+            name:'DEPLOY'
+        )
+    }
+    stages{
+        stage('clone'){
+            steps{
+                git branch: 'DEV', credentialsId: 'a07ac124-0092-4c03-816f-85ea0444c817', url: 'https://github.com/Sandeep-8312/raviLogin.git'
+            }
+        }
+        stage('validate'){
+            steps{
+                sh'mvn validate'
+            }
+        }
+        stage('compile'){
+            steps{
+                sh'mvn compile'
+            }
+        }
+        stage('test'){
+            steps{
+                sh'mvn test'
+            }
+        }
+        stage('package'){
+            steps{
+                sh'mvn package'
+            }
+        }
+        stage('deloy to dev'){
+            when{
+                expression{
+                    params.DEPLOY =='YES'
+                }
+            }
+            steps{
+                input"do you want to deploy to dev Env"
+                deploy adapters: [tomcat9(credentialsId: 'tomcat1', path: '', url: 'http://18.206.239.104:8080/')], contextPath: 'dev', war: '/*.war'
+            }
+        }
+        stage('deploy to test'){
+            when{
+                expression{
+                    params.DEPLOY =='YES'
+                }
+            }
+            steps{
+                input"do you want to deploy to test Env"
+                deploy adapters: [tomcat9(credentialsId: 'tomcat1', path: '', url: 'http://54.81.68.159:8080/')], contextPath: 'dev', war: '/*.war'
+            }
+        }
+        stage('deploy to prod'){
+            when{
+                expression{
+                    params.DEPLOY =='YES'
+                }
+            }
+            steps{
+                input"do you want to deploy to prod Env"
+                deploy adapters: [tomcat9(credentialsId: 'tomcat1', path: '', url: 'http://35.171.166.207:8080')], contextPath: 'dev', war: '/*.war'
+            }
+        }
+        stage('deploy to pre-prod'){
+            when{
+                expression{
+                    params.DEPLOY =='YES'
+                }
+            }
+            steps{
+                input"do you want to deploy to pre-prod Env"
+                deploy adapters: [tomcat9(credentialsId: 'tomcat1', path: '', url: 'http://35.153.201.48:8080')], contextPath: 'dev', war: '/*.war'
+            }
+        }
+    }
+}
