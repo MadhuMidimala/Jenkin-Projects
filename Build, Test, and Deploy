@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-repo/your-app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh './gradlew build' // Replace with your build command
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh './gradlew test' // Replace with your test command
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh './deploy.sh' // Replace with your deploy command
+            }
+        }
+    }
+
+    post {
+        always {
+            archiveArtifacts artifacts: '**/target/*.jar', allowEmptyArchive: true
+            junit 'build/test-results/test/*.xml' // Replace with your test report path
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+    }
+}
