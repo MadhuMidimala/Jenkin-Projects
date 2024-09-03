@@ -1,0 +1,54 @@
+To set up a Jenkins job (often called a "pipeline") to run on a specific slave node (now called "agent" in Jenkins terminology), follow these steps:
+
+### 1. **Set Up the Agent (Slave Node)**
+   - **Install Jenkins Agent**: First, ensure that your agent is set up and connected to the Jenkins master. This involves installing the Jenkins agent software on the target machine.
+   - **Configure Node**:
+     1. Go to Jenkins Dashboard.
+     2. Click on **"Manage Jenkins"** > **"Manage Nodes and Clouds"** > **"New Node"**.
+     3. Give your node a name, select "Permanent Agent," and configure its properties (e.g., remote root directory, labels, number of executors, etc.).
+     4. Launch the agent by using one of the available methods (e.g., via Java Web Start, SSH, etc.).
+
+### 2. **Create or Configure Your Pipeline**
+   - **Create a New Pipeline Job**:
+     1. Go to Jenkins Dashboard.
+     2. Click on **"New Item"**.
+     3. Enter a name for your pipeline and select **"Pipeline"**.
+     4. Click **"OK"**.
+
+   - **Configure the Pipeline to Run on the Agent**:
+     1. In the job configuration page, under the **"Pipeline"** section, use the following script to specify the agent:
+        ```groovy
+        pipeline {
+            agent {
+                label 'your-agent-label'
+            }
+            stages {
+                stage('Build') {
+                    steps {
+                        // your build steps here
+                    }
+                }
+                stage('Test') {
+                    steps {
+                        // your test steps here
+                    }
+                }
+                // additional stages as needed
+            }
+        }
+        ```
+     2. Replace `'your-agent-label'` with the label assigned to your agent. This label was set when you configured the agent in Jenkins.
+
+### 3. **Save and Run the Pipeline**
+   - Click **"Save"** to save your pipeline configuration.
+   - Click **"Build Now"** to run the pipeline. The pipeline should now execute on the specified agent node.
+
+### 4. **Monitor the Job**
+   - You can monitor the job's progress in real-time via the Jenkins interface.
+   - Jenkins will execute the pipeline stages on the specified agent.
+
+### Additional Notes:
+- **Multiple Agents**: If you want to distribute stages across different agents, you can define a different agent for each stage.
+- **Agent Availability**: Ensure the agent is online and available when the job is triggered, otherwise, Jenkins might queue the job until the agent is ready.
+
+This setup ensures your pipeline job runs specifically on the designated agent node, leveraging its resources.
